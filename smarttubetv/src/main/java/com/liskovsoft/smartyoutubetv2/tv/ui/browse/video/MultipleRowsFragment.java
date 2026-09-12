@@ -49,6 +49,8 @@ public abstract class MultipleRowsFragment extends RowsSupportFragment implement
     private final List<VideoGroup> mPendingUpdates = new ArrayList<>();
     private VideoGroupPresenter mMainPresenter;
     private VideoCardPresenter mCardPresenter;
+    private VideoCardPresenter mLeadCardPresenter;
+    private VideoCardPresenter mMusicCardPresenter;
     private ShortsCardPresenter mShortsPresenter;
     private int mSelectedRowIndex = -1;
     private ChannelHeaderCallback mChannelHeaderCallback;
@@ -59,7 +61,23 @@ public abstract class MultipleRowsFragment extends RowsSupportFragment implement
         
         mMainPresenter = getMainPresenter();
         mCardPresenter = new VideoCardPresenter();
+        mLeadCardPresenter = new VideoCardPresenter() {
+            @Override
+            protected android.util.Pair<Integer, Integer> getCardDimensPx(android.content.Context context) {
+                float scale = context.getResources().getDisplayMetrics().density *
+                        MainUIData.instance(context).getVideoGridScale();
+                return new android.util.Pair<>(Math.round(360 * scale), Math.round(202.5f * scale));
+            }
+        };
         mShortsPresenter = new ShortsCardPresenter();
+        mMusicCardPresenter = new VideoCardPresenter() {
+            @Override
+            protected android.util.Pair<Integer, Integer> getCardDimensPx(android.content.Context context) {
+                int side = Math.round(148.5f * context.getResources().getDisplayMetrics().density *
+                        MainUIData.instance(context).getVideoGridScale());
+                return new android.util.Pair<>(side, side);
+            }
+        };
         mBackgroundManager = ((LeanbackActivity) getActivity()).getBackgroundManager();
 
         setupAdapter();
@@ -106,6 +124,8 @@ public abstract class MultipleRowsFragment extends RowsSupportFragment implement
         setOnItemViewClickedListener(new ItemViewClickedListener());
         setOnItemViewSelectedListener(new ItemViewSelectedListener());
         mCardPresenter.setOnItemViewLongPressedListener(new ItemViewLongPressedListener());
+        mLeadCardPresenter.setOnItemViewLongPressedListener(new ItemViewLongPressedListener());
+        mMusicCardPresenter.setOnItemViewLongPressedListener(new ItemViewLongPressedListener());
         mShortsPresenter.setOnItemViewLongPressedListener(new ItemViewLongPressedListener());
     }
 
@@ -253,7 +273,27 @@ public abstract class MultipleRowsFragment extends RowsSupportFragment implement
             HeaderItem rowHeader = new HeaderItem(group.getTitle());
             int videoGroupId = group.getId(); // Create unique int from category.
 
-            VideoGroupObjectAdapter videoGroupAdapter = new VideoGroupObjectAdapter(group, group.isShorts() ? mShortsPresenter : mCardPresenter);
+            boolean leadRow = usesLargeLeadRow() &&
+                    (group.getPosition() == 0 || (group.getPosition() == -1 && mRowsAdapter.size() == 0));
+            Presenter defaultPresenter = group.isShorts() ? mShortsPresenter : leadRow ? mLeadCardPresenter : mCardPresenter;
+            VideoGroupObjectAdapter videoGroupAdapter = new VideoGroupObjectAdapter(group,
+                    new androidx.leanback.widget.PresenterSelector() {
+                        @Override public Presenter getPresenter(Object item) {
+                            if (item instanceof Video) {
+                                Video video = (Video) item;
+                                boolean squareThumbnail = video.mediaItem != null && video.mediaItem.getWidth() > 0 &&
+                                        video.mediaItem.getWidth() == video.mediaItem.getHeight();
+                                if (video.itemType == com.liskovsoft.mediaserviceinterfaces.data.MediaItem.TYPE_MUSIC ||
+                                        (video.belongsToMusic() && squareThumbnail)) {
+                                    return mMusicCardPresenter;
+                                }
+                            }
+                            return defaultPresenter;
+                        }
+                        @Override public Presenter[] getPresenters() {
+                            return new Presenter[] { defaultPresenter, mMusicCardPresenter };
+                        }
+                    });
 
             mVideoGroupAdapters.put(videoGroupId, videoGroupAdapter);
 
@@ -281,6 +321,10 @@ public abstract class MultipleRowsFragment extends RowsSupportFragment implement
         setPosition(mSelectedRowIndex);
 
         // Maybe we don't need to load next group since all rows already fetched?
+    }
+
+    protected boolean usesLargeLeadRow() {
+        return false;
     }
 
     @Override

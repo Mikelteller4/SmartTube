@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="TextAppearance.Leanback" parent="TextAppearance.LeanbackBase">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    <style name="TextAppearance.Leanback.Header" parent="TextAppearance.Leanback">
+        <item name="android:textSize">@dimen/lb_browse_header_text_size</item>
+        <item name="android:textColor">#F1F1F1</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
     <attr name="brandColor" format="reference"/>
     <attr name="brandAccentColor" format="reference"/>
     <attr name="shelfBackground" format="reference"/>

@@ -144,6 +144,7 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
 
         mSearchVisibility = (flags & SEARCH_VIEW_VISIBLE) == SEARCH_VIEW_VISIBLE
                 ? View.VISIBLE : View.INVISIBLE;
+        findViewById(R.id.tv_search_pill).setVisibility(mSearchVisibility);
 
         mBrandingVisibility = (flags & BRANDING_VIEW_VISIBLE) == BRANDING_VIEW_VISIBLE
                 ? View.VISIBLE : View.INVISIBLE;
@@ -193,6 +194,14 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
         MainUIData mainUIData = MainUIData.instance(getContext());
 
         mSearchOrbView = findViewById(R.id.title_orb);
+        View microphone = mSearchOrbView.findViewById(androidx.leanback.R.id.icon);
+        if (microphone != null) {
+            android.view.ViewGroup.LayoutParams iconParams = microphone.getLayoutParams();
+            iconParams.width = iconParams.height = Math.round(16 * getResources().getDisplayMetrics().density);
+            microphone.setLayoutParams(iconParams);
+        }
+        findViewById(R.id.tv_search_pill).setOnClickListener(v ->
+                com.liskovsoft.smartyoutubetv2.common.app.presenters.SearchPresenter.instance(getContext()).startSearch(null));
 
         mAccountView = findViewById(R.id.account_orb);
         mAccountView.setOnOrbClickedListener(v -> AccountSelectionPresenter.instance(getContext()).nextAccountOrDialog());
@@ -227,7 +236,7 @@ public class NavigateTitleView extends TitleView implements OnDataChange, Accoun
         MainUIData mainUIData = MainUIData.instance(getContext());
 
         mIsSearchOrbEnabled = !mainUIData.isTopButtonEnabled(MainUIData.TOP_BUTTON_SEARCH);
-        mIsAccountViewEnabled = mainUIData.isTopButtonEnabled(MainUIData.TOP_BUTTON_BROWSE_ACCOUNTS);
+        mIsAccountViewEnabled = false; // Account entry is in the persistent navigation rail.
         mIsLanguageViewEnabled = mainUIData.isTopButtonEnabled(MainUIData.TOP_BUTTON_CHANGE_LANGUAGE);
         mIsGlobalClockEnabled = GeneralData.instance(getContext()).isGlobalClockEnabled();
 

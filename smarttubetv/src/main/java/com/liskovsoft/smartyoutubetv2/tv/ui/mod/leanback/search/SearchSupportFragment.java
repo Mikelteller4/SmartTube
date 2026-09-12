@@ -346,6 +346,8 @@ public class SearchSupportFragment extends Fragment {
         // MOD: inner search bar views for improved focus handling
 
         mSearchTextEditor = mSearchBar.findViewById(R.id.lb_search_text_editor);
+        mSearchTextEditor.setShowSoftInputOnFocus(false);
+        mSearchTextEditor.setPadding(0, 0, 0, 0);
         mSearchTextEditor.setSelectAllOnFocus(true); // Select all on focus (easy clear previous search)
         mSearchTextEditor.setOnFocusChangeListener((v, focused) -> {
             Log.d(TAG, "on search field focused");
@@ -355,9 +357,7 @@ public class SearchSupportFragment extends Fragment {
                 SearchPresenter.instance(v.getContext()).disposeActions();
             }
 
-            if (mIsKeyboardAutoShowEnabled && focused) {
-                Helpers.showKeyboardAlt(v.getContext(), v);
-            }
+            // The TV alphabet keyboard remains visible without opening the system IME.
         });
         mSearchTextEditor.addTextChangedListener(new TextWatcher() {
             @Override
@@ -403,6 +403,7 @@ public class SearchSupportFragment extends Fragment {
         mSearchSettingsOrbView.setOnOrbClickedListener(v -> onSearchSettingsClicked());
 
         mSpeechOrbView = mSearchBar.findViewById(R.id.lb_search_bar_speech_orb);
+        mSpeechOrbView.setFocusableInTouchMode(true);
         OnFocusChangeListener previousListener = mSpeechOrbView.getOnFocusChangeListener();
         mSpeechOrbView.setOnFocusChangeListener((v, focused) -> {
             if (!focused) {
@@ -413,6 +414,14 @@ public class SearchSupportFragment extends Fragment {
             if (previousListener != null) {
                 previousListener.onFocusChange(v, focused);
             }
+            SearchOrbView.Colors orbColors = new SearchOrbView.Colors(
+                    focused ? 0xFFF1F1F1 : 0xFF272727,
+                    focused ? 0xFFF1F1F1 : 0xFF272727,
+                    focused ? 0xFF0F0F0F : 0xFFAAAAAA);
+            mSpeechOrbView.setNotListeningOrbColors(orbColors);
+            mSpeechOrbView.setOrbColors(orbColors);
+            android.widget.ImageView speechIcon = mSpeechOrbView.findViewById(R.id.icon);
+            speechIcon.setColorFilter(focused ? 0xFF0F0F0F : 0xFFAAAAAA);
         });
 
         // End MOD
@@ -454,7 +463,60 @@ public class SearchSupportFragment extends Fragment {
         if (null != mProvider) {
             onSetSearchResultProvider();
         }
+        installTvKeyboard(searchFrame);
         return root;
+    }
+
+    private void installTvKeyboard(FrameLayout root) {
+        float density = getResources().getDisplayMetrics().density;
+        View results = root.findViewById(R.id.lb_results_frame);
+        FrameLayout.LayoutParams resultsParams = (FrameLayout.LayoutParams) results.getLayoutParams();
+        resultsParams.leftMargin = Math.round(22 * density);
+        resultsParams.topMargin = Math.round(270 * density);
+        results.setLayoutParams(resultsParams);
+        View micIcon = mSpeechOrbView.findViewById(R.id.icon);
+        ViewGroup.LayoutParams micParams = micIcon.getLayoutParams();
+        micParams.width = micParams.height = Math.round(16 * density);
+        micIcon.setLayoutParams(micParams);
+        com.liskovsoft.smartyoutubetv2.tv.ui.widgets.search.TvAlphabetKeyboard keyboard =
+                new com.liskovsoft.smartyoutubetv2.tv.ui.widgets.search.TvAlphabetKeyboard(
+                        requireContext(), mSearchTextEditor, () -> submitQuery(getSearchBarText()));
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                Math.round(280 * density), Math.round(170 * density));
+        params.leftMargin = Math.round(352 * density);
+        params.topMargin = Math.round(82 * density);
+        root.addView(keyboard, params);
+        mSearchTextEditor.setNextFocusDownId(keyboard.getChildAt(0).getId());
+        mSpeechOrbView.setNextFocusDownId(keyboard.getChildAt(0).getId());
+        mSearchOrbView.setVisibility(View.GONE);
+        mSearchSettingsOrbView.setVisibility(View.GONE);
+        com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvNavigationRail rail =
+                new com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvNavigationRail(requireContext(), destination -> {
+                    if (destination == com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvNavigationRail.SEARCH) {
+                        mSearchTextEditor.requestFocus();
+                    } else if (destination == com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvNavigationRail.ACCOUNT) {
+                        com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.AccountSelectionPresenter.instance(getContext()).nextAccountOrDialog();
+                    } else {
+                        int section = destination == com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvNavigationRail.MORE
+                                ? com.liskovsoft.mediaserviceinterfaces.data.MediaGroup.TYPE_HOME : destination;
+                        com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter.instance(getContext()).selectSection(section);
+                    }
+                });
+        rail.select(com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvNavigationRail.SEARCH);
+        root.addView(rail, new FrameLayout.LayoutParams(Math.round(68 * density), ViewGroup.LayoutParams.MATCH_PARENT));
+        android.widget.ImageView wordmark = new android.widget.ImageView(requireContext());
+        wordmark.setImageDrawable(new com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvWordmarkDrawable());
+        FrameLayout.LayoutParams logoParams = new FrameLayout.LayoutParams(Math.round(98 * density), Math.round(25 * density),
+                android.view.Gravity.TOP | android.view.Gravity.END);
+        logoParams.topMargin = Math.round(38 * density);
+        logoParams.rightMargin = Math.round(60 * density);
+        root.addView(wordmark, logoParams);
+        root.post(() -> {
+            if (mSearchTextEditor != null && mSpeechOrbView != null &&
+                    android.text.TextUtils.isEmpty(mSearchTextEditor.getText())) {
+                mSpeechOrbView.requestFocusFromTouch();
+            }
+        });
     }
 
     private void resultsAvailable() {
@@ -776,7 +838,11 @@ public class SearchSupportFragment extends Fragment {
     }
 
     public void focusOnSearchField() {
-        mSearchTextEditor.requestFocus(); // MOD: focus on search field
+        if (android.text.TextUtils.isEmpty(mSearchTextEditor.getText())) {
+            mSpeechOrbView.requestFocusFromTouch();
+        } else {
+            mSearchTextEditor.requestFocus();
+        }
     }
 
     protected String getSearchBarText() {
@@ -871,8 +937,7 @@ public class SearchSupportFragment extends Fragment {
     void updateSearchBarVisibility() {
         int position = mRowsSupportFragment != null ? mRowsSupportFragment.getSelectedPosition() : -1;
         try {
-            mSearchBar.setVisibility(position <=0 || mResultAdapter == null
-                    || mResultAdapter.size() == 0 ? View.VISIBLE : View.GONE);
+            mSearchBar.setVisibility(View.VISIBLE);
         } catch (NullPointerException e) {
             // Fatal Exception: java.lang.NullPointerException
             // Attempt to invoke interface method 'void android.view.autofill.IAutoFillManager.addClient(android.view.autofill

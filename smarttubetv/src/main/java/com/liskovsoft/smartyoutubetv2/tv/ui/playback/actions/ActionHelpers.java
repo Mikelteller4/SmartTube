@@ -42,6 +42,23 @@ public class ActionHelpers {
         return dst;
     }
 
+    public static BitmapDrawable asBitmapDrawable(Context context, Drawable drawable) {
+        if (drawable == null) {
+            return null;
+        }
+        if (drawable instanceof BitmapDrawable) {
+            return (BitmapDrawable) drawable;
+        }
+
+        int width = Math.max(1, drawable.getIntrinsicWidth());
+        int height = Math.max(1, drawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, width, height);
+        drawable.draw(canvas);
+        return new BitmapDrawable(context.getResources(), bitmap);
+    }
+
     public static Drawable getStyledDrawable(Context context, int index) {
         TypedValue outValue = new TypedValue();
         if (!context.getTheme().resolveAttribute(

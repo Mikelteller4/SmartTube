@@ -84,8 +84,12 @@ public class SpeechOrbView extends SearchOrbView {
      * Sets the view to display the not-listening state.
      */
     public void showNotListening() {
-        setOrbColors(mNotListeningOrbColors);
         setOrbIcon(getResources().getDrawable(R.drawable.lb_ic_search_mic_out));
+        // YouTube TV uses a dark mic on the selected white orb and a muted mic otherwise.
+        // Apply this after replacing the drawable because setOrbIcon clears the prior tint.
+        int orbColor = hasFocus() ? 0xFFF1F1F1 : 0xFF272727;
+        int iconColor = hasFocus() ? 0xFF0F0F0F : 0xFFAAAAAA;
+        setOrbColors(new Colors(orbColor, orbColor, iconColor));
         animateOnFocus(hasFocus());
         scaleOrbViewOnly(1f);
         mListening = false;

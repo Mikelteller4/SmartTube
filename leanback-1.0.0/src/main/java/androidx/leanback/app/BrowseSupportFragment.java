@@ -1464,7 +1464,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     private void expandMainFragment(boolean expand) {
         MarginLayoutParams params = (MarginLayoutParams) mScaleFrameLayout.getLayoutParams();
-        params.setMarginStart(!expand ? mContainerListMarginStart : 0);
+        params.setMarginStart(!expand ? mContainerListMarginStart : getCollapsedContentMarginStart());
         mScaleFrameLayout.setLayoutParams(params);
         mMainFragmentAdapter.setExpand(expand);
 
@@ -1474,6 +1474,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 && mMainFragmentAdapter.isScalingEnabled() ? mScaleFactor : 1;
         mScaleFrameLayout.setLayoutScaleY(scaleFactor);
         mScaleFrameLayout.setChildScale(scaleFactor);
+    }
+
+    /** Space reserved for a persistent navigation rail by TV clients. */
+    protected int getCollapsedContentMarginStart() {
+        return 0;
     }
 
     private HeadersSupportFragment.OnHeaderClickedListener mHeaderClickedListener =

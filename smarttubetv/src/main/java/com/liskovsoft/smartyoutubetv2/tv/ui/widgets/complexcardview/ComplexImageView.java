@@ -109,7 +109,10 @@ public class ComplexImageView extends RelativeLayout {
             return;
         }
 
-        mBadgeText.setBackgroundColor(color);
+        android.graphics.drawable.GradientDrawable background = new android.graphics.drawable.GradientDrawable();
+        background.setColor(color);
+        background.setCornerRadius(2 * getResources().getDisplayMetrics().density);
+        mBadgeText.setBackground(background);
     }
 
     /**

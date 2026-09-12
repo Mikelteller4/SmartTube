@@ -314,7 +314,13 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      */
     public void setOrbColors(Colors colors) {
         mColors = colors;
-        mIcon.setColorFilter(mColors.iconColor);
+        if (mIcon.getImageTintList() == null) {
+            mIcon.setColorFilter(mColors.iconColor);
+        } else {
+            // Let the speech icon's state list follow focus even if recognition
+            // reapplies the surrounding orb colors asynchronously.
+            mIcon.clearColorFilter();
+        }
 
         if (mColorAnimator == null) {
             setOrbViewColor(mColors.color);

@@ -19,12 +19,15 @@
 
     <View
             android:id="@+id/search_orb"
+            android:duplicateParentState="true"
             android:layout_width="@dimen/lb_search_bar_speech_orb_size"
             android:layout_height="@dimen/lb_search_bar_speech_orb_size"
             android:background="@drawable/lb_speech_orb" />
 
     <ImageView
             android:id="@+id/icon"
+            android:duplicateParentState="true"
+            android:tint="@color/lb_speech_orb_icon_tint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

@@ -7,6 +7,9 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvNavigationRail;
+import com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvAccountPickerDialog;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -56,6 +59,9 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
     private boolean mIsFragmentCreated;
     private boolean mFocusOnContent;
     private CrashRestorer mCrashRestorer;
+    private TvNavigationRail mNavigationRail;
+    private TvAccountPickerDialog mNavigationDialog;
+    private boolean mFocusHeadersAfterRail;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,7 +102,77 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
 
         mProgressBarManager.setRootView((ViewGroup) root);
 
+        mNavigationRail = new TvNavigationRail(requireContext(), destination -> {
+            if (destination == TvNavigationRail.SEARCH) {
+                SearchPresenter.instance(getContext()).startSearch(null);
+            } else if (destination == TvNavigationRail.MOVIES) {
+                SearchPresenter.instance(getContext()).startSearch("movies");
+            } else if (destination == TvNavigationRail.ACCOUNT) {
+                new TvAccountPickerDialog(requireContext(), this::navigateFromAccountPicker).show();
+            } else {
+                if (mSections.containsKey(destination)) {
+                    selectSection(indexOf(destination), true);
+                }
+                mFocusHeadersAfterRail = true;
+                startHeadersTransitionSafe(true);
+            }
+        });
+        ((FrameLayout) root).addView(mNavigationRail, new FrameLayout.LayoutParams(
+                Math.round(68 * getResources().getDisplayMetrics().density), ViewGroup.LayoutParams.MATCH_PARENT));
+        mNavigationRail.setVisibility(isShowingHeaders() ? View.GONE : View.VISIBLE);
+        setBrowseTransitionListener(new BrowseTransitionListener() {
+            @Override public void onHeadersTransitionStart(boolean withHeaders) {
+                mNavigationRail.setVisibility(View.GONE);
+            }
+            @Override public void onHeadersTransitionStop(boolean withHeaders) {
+                mNavigationRail.select(getSelectedHeaderId());
+                mNavigationRail.setVisibility(withHeaders ? View.GONE : View.VISIBLE);
+                if (withHeaders && isAdded()) {
+                    mNavigationDialog = TvAccountPickerDialog.showNavigation(
+                            requireContext(), BrowseFragment.this::navigateFromAccountPicker,
+                            getSelectedHeaderId());
+                    mNavigationDialog.setOnDismissListener(dialog -> {
+                        if (isAdded()) {
+                            startHeadersTransitionSafe(false);
+                        }
+                    });
+                    mFocusHeadersAfterRail = false;
+                    return;
+                }
+                if (withHeaders && mFocusHeadersAfterRail && getHeadersSupportFragment() != null
+                        && getHeadersSupportFragment().getVerticalGridView() != null) {
+                    androidx.leanback.widget.VerticalGridView headers = getHeadersSupportFragment().getVerticalGridView();
+                    androidx.recyclerview.widget.RecyclerView.ViewHolder selected =
+                            headers.findViewHolderForAdapterPosition(Math.max(0, headers.getSelectedPosition()));
+                    if (selected != null) {
+                        selected.itemView.requestFocusFromTouch();
+                    } else {
+                        headers.requestFocus();
+                    }
+                }
+                mFocusHeadersAfterRail = false;
+            }
+        });
+
         return root;
+    }
+
+    private void navigateFromAccountPicker(int destination) {
+        if (destination == TvNavigationRail.SEARCH) {
+            SearchPresenter.instance(getContext()).startSearch(null);
+        } else if (destination == TvNavigationRail.MOVIES) {
+            SearchPresenter.instance(getContext()).startSearch("movies");
+        } else if (destination == TvNavigationRail.MORE) {
+            mFocusHeadersAfterRail = true;
+            startHeadersTransitionSafe(true);
+        } else if (mSections.containsKey(destination)) {
+            selectSection(indexOf(destination), true);
+        }
+    }
+
+    @Override
+    protected int getCollapsedContentMarginStart() {
+        return Math.round(22 * getResources().getDisplayMetrics().density);
     }
 
     @Override
@@ -200,7 +276,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
         setBrandColor(ContextCompat.getColor(getContext(), brandColorRes));
 
         // Set search icon color.
-        setSearchAffordanceColor(ContextCompat.getColor(getContext(), brandAccentColorRes));
+        setSearchAffordanceColor(0xFF272727);
 
         setHeaderPresenterSelector(new PresenterSelector() {
             private final Map<Integer, Presenter> mPresenterMap = new HashMap<>();
@@ -441,6 +517,11 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
 
     @Override
     public void onDestroyView() {
+        if (mNavigationDialog != null) {
+            mNavigationDialog.setOnDismissListener(null);
+            mNavigationDialog.dismiss();
+            mNavigationDialog = null;
+        }
         mSectionFragmentFactory.cleanup();
 
         super.onDestroyView();
@@ -524,6 +605,6 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
         Drawable bridgeIcon = Utils.getDrawable(getContext(), splashPresenter.getBridgePackageName(), "app_icon");
 
         // Top right corner logo
-        setBadgeDrawable(bridgeIcon != null ? bridgeIcon : appLogoRes > 0 ? ContextCompat.getDrawable(getContext(), appLogoRes) : null);
+        setBadgeDrawable(new com.liskovsoft.smartyoutubetv2.tv.ui.widgets.browse.TvWordmarkDrawable());
     }
 }

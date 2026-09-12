@@ -62,16 +62,43 @@ public class VideoCardPresenter extends LongClickPresenter {
 
         boolean isCardMultilineTitleEnabled = isCardMultilineTitleEnabled(context);
         boolean isCardMultilineSubtitleEnabled = isCardMultilineSubtitleEnabled(context);
-        boolean isCardTextAutoScrollEnabled = isCardTextAutoScrollEnabled(context);
+        // Preserve the reference's two-line title when focus moves onto a card.
+        boolean isCardTextAutoScrollEnabled = false;
         float cardTextScrollSpeed = getCardTextScrollSpeed(context);
 
         updateDimensions(context);
 
         ComplexImageCardView cardView = new ComplexImageCardView(context) {
+            private final android.graphics.Paint focusPaint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+            private final android.graphics.Rect imageBounds = new android.graphics.Rect();
+            private final android.graphics.RectF borderBounds = new android.graphics.RectF();
+            @Override protected void onAttachedToWindow() {
+                super.onAttachedToWindow();
+                allowFocusOverflow(this);
+            }
             @Override
             public void setSelected(boolean selected) {
                 updateCardBackgroundColor(this, selected);
                 super.setSelected(selected);
+                invalidate();
+            }
+
+            @Override protected void dispatchDraw(android.graphics.Canvas canvas) {
+                super.dispatchDraw(canvas);
+                if (!isSelected()) return;
+                View thumbnail = findViewById(R.id.main_image_wrapper);
+                if (thumbnail == null) return;
+                float density = getResources().getDisplayMetrics().density;
+                float stroke = 4.5f * density;
+                thumbnail.getDrawingRect(imageBounds);
+                offsetDescendantRectToMyCoords(thumbnail, imageBounds);
+                borderBounds.set(imageBounds);
+                borderBounds.inset(-stroke / 2, -stroke / 2);
+                focusPaint.setColor(0xFFF1F1F1);
+                focusPaint.setStyle(android.graphics.Paint.Style.STROKE);
+                focusPaint.setStrokeWidth(stroke);
+                float radius = 9 * density + stroke / 2;
+                canvas.drawRoundRect(borderBounds, radius, radius, focusPaint);
             }
         };
 
@@ -93,8 +120,8 @@ public class VideoCardPresenter extends LongClickPresenter {
     }
 
     private void updateCardBackgroundColor(ComplexImageCardView view, boolean selected) {
-        int backgroundColor = selected ? mSelectedBackgroundColor : mDefaultBackgroundColor;
-        int textColor = selected ? mSelectedTextColor : mDefaultTextColor;
+        int backgroundColor = mDefaultBackgroundColor;
+        int textColor = mDefaultTextColor;
 
         // Both background colors should be set because the view's
         // background is temporarily visible during animations.
@@ -108,11 +135,12 @@ public class VideoCardPresenter extends LongClickPresenter {
 
         TextView titleText = view.findViewById(R.id.title_text);
         if (titleText != null) {
-            titleText.setTextColor(textColor);
+            titleText.setTextColor(selected ? textColor : 0xFFAAAAAA);
+            titleText.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
         }
         TextView contentText = view.findViewById(R.id.content_text);
         if (contentText != null) {
-            contentText.setTextColor(textColor);
+            contentText.setTextColor(ContextCompat.getColor(view.getContext(), R.color.tv_secondary_text));
         }
     }
 
@@ -124,9 +152,21 @@ public class VideoCardPresenter extends LongClickPresenter {
 
         ComplexImageCardView cardView = (ComplexImageCardView) viewHolder.view;
         Context context = cardView.getContext();
+        // Permit the selection stroke to extend beyond the card, retaining the outer shelf viewport.
+        allowFocusOverflow(cardView);
+        View thumbnail = cardView.findViewById(R.id.main_image_wrapper);
+        if (thumbnail != null && VERSION.SDK_INT >= 21) {
+            thumbnail.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                @Override public void getOutline(View view, android.graphics.Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(),
+                            9 * view.getResources().getDisplayMetrics().density);
+                }
+            });
+            thumbnail.setClipToOutline(true);
+        }
 
         cardView.setTitleText(video.getTitle());
-        cardView.setContentText(video.getSecondTitle());
+        cardView.setContentText(formatMetadata(video));
         // Count progress that very close to zero. E.g. when user closed video immediately.
         cardView.setProgress(video.percentWatched > 0 && video.percentWatched < 1 ? 1 : Math.round(video.percentWatched));
         cardView.setBadgeText(
@@ -187,6 +227,33 @@ public class VideoCardPresenter extends LongClickPresenter {
         Glide.with(cardView.getContext().getApplicationContext()).clear(cardView.getMainImageView());
     }
 
+    private static void allowFocusOverflow(View current) {
+        while (current instanceof ViewGroup) {
+            ((ViewGroup) current).setClipChildren(false);
+            ((ViewGroup) current).setClipToPadding(false);
+            if (VERSION.SDK_INT >= 21) current.setClipToOutline(false);
+            if (current instanceof androidx.leanback.widget.BaseGridView) break;
+            if (!(current.getParent() instanceof View)) break;
+            current = (View) current.getParent();
+        }
+    }
+
+    private CharSequence formatMetadata(Video video) {
+        CharSequence metadata = video.getSecondTitle();
+        if (metadata == null || !video.hasVideo()) return metadata;
+        String author = video.getAuthor();
+        if (author == null || author.isEmpty()) return metadata;
+        String text = metadata.toString();
+        // Split only a verified author prefix; playlist and channel summaries retain their format.
+        if (!text.startsWith(author)) return metadata;
+        int separator = author.length();
+        while (separator < text.length() && Character.isWhitespace(text.charAt(separator))) separator++;
+        if (separator >= text.length() || (text.charAt(separator) != '•' && text.charAt(separator) != '·')) return metadata;
+        int detail = separator + 1;
+        while (detail < text.length() && Character.isWhitespace(text.charAt(detail))) detail++;
+        return new android.text.SpannableStringBuilder(metadata).replace(author.length(), detail, "\n");
+    }
+
     private void updateDimensions(Context context) {
         Pair<Integer, Integer> dimens = getCardDimensPx(context);
 
@@ -195,7 +262,9 @@ public class VideoCardPresenter extends LongClickPresenter {
     }
     
     protected Pair<Integer, Integer> getCardDimensPx(Context context) {
-        return GridFragmentHelper.getCardDimensPx(context, R.dimen.card_width, R.dimen.card_height, MainUIData.instance(context).getVideoGridScale());
+        float scale = MainUIData.instance(context).getVideoGridScale();
+        return new Pair<>(Math.round(context.getResources().getDimension(R.dimen.card_width) * scale),
+                Math.round(context.getResources().getDimension(R.dimen.card_height) * scale));
     }
 
     protected boolean isCardTextAutoScrollEnabled(Context context) {

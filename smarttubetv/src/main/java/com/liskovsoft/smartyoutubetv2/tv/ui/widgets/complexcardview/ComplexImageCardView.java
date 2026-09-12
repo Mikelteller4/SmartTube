@@ -140,7 +140,8 @@ public class ComplexImageCardView extends ImageCardView {
         }
 
         titleView.setMaxLines(lines);
-        titleView.setLines(lines);
+        // Short titles must not reserve an empty line above the channel metadata.
+        titleView.setMinLines(1);
     }
 
     public void setContentLinesNum(int lines) {
@@ -151,7 +152,7 @@ public class ComplexImageCardView extends ImageCardView {
         }
 
         contentView.setMaxLines(lines);
-        contentView.setLines(lines);
+        contentView.setMinLines(1);
     }
 
     public void enableBadge(boolean enabled) {

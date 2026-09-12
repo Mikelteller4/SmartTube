@@ -707,6 +707,13 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
             protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
                 super.onBindRowViewHolder(holder, item);
 
+                float density = holder.view.getResources().getDisplayMetrics().density;
+                View rowContent = holder.view.findViewById(androidx.leanback.R.id.row_content);
+                if (rowContent != null) {
+                    rowContent.setTranslationX(-8f * density);
+                    rowContent.setTranslationY(-22f * density);
+                }
+
                 focusPendingSuggestedItem(holder);
             }
 
@@ -723,6 +730,7 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
             }
         };
         mRowPresenter.enableChildRoundedCorners(getMainUIData().isUiTweakEnabled(MainUIData.UI_TWEAK_ROUNDED_CORNERS));
+        mRowPresenter.setHeaderPresenter(null);
 
         mCardPresenter = new VideoCardPresenter();
         mShortsPresenter = new ShortsCardPresenter();

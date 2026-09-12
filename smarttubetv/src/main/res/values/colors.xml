@@ -31,10 +31,11 @@
     <color name="player_background">#FF000000</color>
 
     <!-- Dark color scheme -->
-    <color name="scheme_grey_background">#181818</color>
-    <color name="scheme_grey_background_dark">#181818</color>
-    <color name="scheme_grey_shelf_background_dark">#000000</color>
-    <color name="scheme_grey_card_background_dark">#121212</color>
+    <color name="scheme_grey_background">#0F0F0F</color>
+    <color name="scheme_grey_background_dark">#0F0F0F</color>
+    <color name="scheme_grey_shelf_background_dark">#0F0F0F</color>
+    <color name="scheme_grey_card_background_dark">#0F0F0F</color>
+    <color name="tv_secondary_text">#AAAAAA</color>
 
     <!-- Red color scheme -->
     <color name="scheme_red_background">#131313</color>
@@ -68,4 +69,6 @@
     <color name="lb_speech_orb_not_recording">@color/orb_color</color>
     <color name="lb_speech_orb_not_recording_pulsed">@color/orb_bright_color</color>
     <color name="lb_speech_orb_not_recording_icon">@color/orb_icon_color</color>
+    <color name="lb_search_bar_hint_speech_mode">#FF666666</color>
+    <color name="lb_search_bar_text_speech_mode">#FF444444</color>
 </resources>

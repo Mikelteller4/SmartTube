@@ -1,0 +1,9 @@
+<resources>
+    <string name="tv_navigation_more">Más</string>
+    <string name="tv_navigation_movies">Películas</string>
+    <string name="tv_navigation_movies_tv">Películas y TV</string>
+    <string name="tv_navigation_library">Biblioteca</string>
+    <string name="tv_account_whos_watching">¿Quién está viendo?</string>
+    <string name="tv_account_guest">Invitado</string>
+    <string name="tv_account_add">Añadir cuenta</string>
+</resources>

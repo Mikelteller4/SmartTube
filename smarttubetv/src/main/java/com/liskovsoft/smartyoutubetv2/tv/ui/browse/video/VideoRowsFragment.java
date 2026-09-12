@@ -21,6 +21,11 @@ public class VideoRowsFragment extends MultipleRowsFragment {
     }
 
     @Override
+    protected boolean usesLargeLeadRow() {
+        return BrowsePresenter.instance(getContext()).isHomeSection();
+    }
+
+    @Override
     public void setExpand(boolean expand) {
         // force expand by default
         super.setExpand(true);

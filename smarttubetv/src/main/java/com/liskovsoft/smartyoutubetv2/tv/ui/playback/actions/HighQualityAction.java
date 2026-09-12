@@ -1,8 +1,8 @@
 package com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
 import androidx.leanback.widget.Action;
+import androidx.core.content.ContextCompat;
 import com.liskovsoft.smartyoutubetv2.tv.R;
 
 /**
@@ -11,10 +11,9 @@ import com.liskovsoft.smartyoutubetv2.tv.R;
 public class HighQualityAction extends Action {
     public HighQualityAction(Context context) {
         super(R.id.lb_control_high_quality);
-        BitmapDrawable uncoloredDrawable = (BitmapDrawable) ActionHelpers.getStyledDrawable(context,
-                R.styleable.lbPlaybackControlsActionIcons_high_quality);
-
-        setIcon(uncoloredDrawable);
+        // The YouTube TV transport surface exposes playback options with a gear.
+        // Keep this action's existing quality/settings handler and change only its glyph.
+        setIcon(ContextCompat.getDrawable(context, R.drawable.tv_rail_settings));
         setLabel1(context.getString(
                 R.string.playback_settings));
     }

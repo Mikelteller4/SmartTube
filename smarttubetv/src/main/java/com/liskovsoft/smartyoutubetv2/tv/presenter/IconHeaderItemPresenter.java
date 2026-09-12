@@ -46,6 +46,15 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
 
         View view = inflater.inflate(R.layout.icon_header_item, null);
         view.setAlpha(mUnselectedAlpha); // Initialize icons to be at half-opacity.
+        view.setOnFocusChangeListener((item, focused) -> {
+            int color = focused ? 0xFF0F0F0F : 0xFFF1F1F1;
+            TextView label = item.findViewById(R.id.header_label);
+            ImageView icon = item.findViewById(R.id.header_icon);
+            label.setTextColor(color);
+            if (mIconUrl == null) {
+                icon.setColorFilter(color);
+            }
+        });
 
         return new ViewHolder(view);
     }
@@ -94,6 +103,7 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
     // mUnselectAlpha, and also assumes the xml inflation will return a RowHeaderView.
     @Override
     protected void onSelectLevelChanged(RowHeaderPresenter.ViewHolder holder) {
+        holder.view.setSelected(holder.getSelectLevel() > 0.5f);
         holder.view.setAlpha(mUnselectedAlpha + holder.getSelectLevel() *
                 (1.0f - mUnselectedAlpha));
     }

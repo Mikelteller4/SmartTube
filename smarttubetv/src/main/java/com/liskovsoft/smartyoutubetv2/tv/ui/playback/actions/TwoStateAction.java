@@ -45,7 +45,8 @@ public class TwoStateAction extends MultiAction {
 
         mContext = context;
         Drawable[] drawables = new Drawable[2];
-        BitmapDrawable offDrawable = (BitmapDrawable) ContextCompat.getDrawable(context, offIconResId);
+        Drawable source = ContextCompat.getDrawable(context, offIconResId);
+        BitmapDrawable offDrawable = ActionHelpers.asBitmapDrawable(context, source);
         drawables[INDEX_OFF] = offDrawable;
         drawables[INDEX_ON] = offDrawable == null ? null
                 : new BitmapDrawable(context.getResources(),

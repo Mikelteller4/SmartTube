@@ -1,0 +1,8 @@
+<resources>
+    <string name="tv_keyboard_space">SPACE</string>
+    <string name="tv_keyboard_clear">CLEAR</string>
+    <string name="tv_keyboard_search">SEARCH</string>
+    <string name="tv_keyboard_delete">Delete previous character</string>
+    <string name="tv_keyboard_numbers">Numbers and symbols</string>
+    <string name="tv_keyboard_accents">Accented letters</string>
+</resources>

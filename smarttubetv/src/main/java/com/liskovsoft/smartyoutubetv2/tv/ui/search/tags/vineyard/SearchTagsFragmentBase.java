@@ -55,6 +55,9 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
     private boolean mIsStopping;
     private SearchTagsProvider mSearchTagsProvider;
     private ProgressBarManager mProgressBarManager;
+    private android.widget.LinearLayout mTvSuggestions;
+    private int mSuggestionRequest;
+    private OnItemLongPressedListener mSuggestionLongPressListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,13 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
         View root = super.onCreateView(inflater, container, savedInstanceState);
 
         mProgressBarManager.setRootView((ViewGroup) root);
+        mTvSuggestions = new android.widget.LinearLayout(requireContext());
+        mTvSuggestions.setOrientation(android.widget.LinearLayout.VERTICAL);
+        android.widget.FrameLayout.LayoutParams suggestionsParams = new android.widget.FrameLayout.LayoutParams(
+                dp(252), android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        suggestionsParams.leftMargin = dp(78);
+        suggestionsParams.topMargin = dp(88);
+        ((android.widget.FrameLayout) root).addView(mTvSuggestions, suggestionsParams);
 
         return root;
     }
@@ -131,6 +141,7 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
 
     protected void setSearchTagsLongPressListener(OnItemLongPressedListener listener) {
         mTagsPresenter.setOnItemViewLongPressedListener(listener);
+        mSuggestionLongPressListener = listener;
     }
 
     public boolean isStopping() {
@@ -200,14 +211,16 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
     }
 
     private void performTagSearch(TagAdapter adapter) {
+        final int request = ++mSuggestionRequest;
         if (mSearchTagsProvider == null) {
             return;
         }
 
         String query = adapter.getAdapterOptions().get(PaginationAdapter.KEY_TAG);
         mSearchTagsProvider.search(query, results -> {
+            if (request != mSuggestionRequest || mTvSuggestions == null) return;
             adapter.addAllItems(results);
-            attachAdapter(0, adapter);
+            showTvSuggestions();
             // Same suggestions in the keyboard
             //displayCompletions(toCompletions(results));
         });
@@ -266,19 +279,68 @@ public abstract class SearchTagsFragmentBase extends SearchSupportFragment
     }
 
     protected void clearTags() {
+        if (mTvSuggestions != null) mTvSuggestions.removeAllViews();
         if (containsAdapter(mSearchTagsAdapter)) {
             detachAdapter(0);
         }
     }
 
     protected void removeTag(Tag tag) {
-        if (containsAdapter(mSearchTagsAdapter)) {
-            mSearchTagsAdapter.remove(tag);
-            if (mSearchTagsAdapter.size() == 0) {
-                detachAdapter(0);
-            }
+        mSearchTagsAdapter.remove(tag);
+        showTvSuggestions();
+    }
+
+    private void showTvSuggestions() {
+        if (!isAdded() || mTvSuggestions == null) return;
+        int focusedIndex = -1;
+        for (int i = 0; i < mTvSuggestions.getChildCount(); i++) {
+            if (mTvSuggestions.getChildAt(i).hasFocus()) focusedIndex = i;
+        }
+        mTvSuggestions.removeAllViews();
+        for (int i = 0; i < Math.min(5, mSearchTagsAdapter.size()); i++) {
+            Tag tag = (Tag) mSearchTagsAdapter.get(i);
+            android.widget.TextView chip = new android.widget.TextView(requireContext());
+            chip.setText(tag.tag);
+            chip.setTextSize(14);
+            chip.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+            chip.setTextColor(getResources().getColorStateList(R.color.tv_search_text));
+            chip.setBackgroundResource(R.drawable.tv_search_background);
+            chip.setSingleLine(true);
+            chip.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            chip.setMaxWidth(dp(250));
+            chip.setPadding(dp(10), 0, dp(14), 0);
+            String query = mSearchTagsAdapter.getAdapterOptions().get(PaginationAdapter.KEY_TAG);
+            android.graphics.drawable.Drawable symbol = androidx.core.content.ContextCompat.getDrawable(requireContext(),
+                    android.text.TextUtils.isEmpty(query) ? R.drawable.tv_search_history : R.drawable.tv_rail_search).mutate();
+            symbol.setTintList(getResources().getColorStateList(R.color.tv_search_text));
+            symbol.setBounds(0, 0, dp(16), dp(16));
+            chip.setCompoundDrawablePadding(dp(5));
+            chip.setCompoundDrawables(symbol, null, null, null);
+            chip.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            chip.setFocusable(true);
+            chip.setOnClickListener(v -> onItemViewClicked(tag));
+            chip.setOnLongClickListener(v -> {
+                if (mSuggestionLongPressListener == null) return false;
+                mSuggestionLongPressListener.onItemLongPressed(new androidx.leanback.widget.Presenter.ViewHolder(chip), tag);
+                return true;
+            });
+            android.widget.LinearLayout.LayoutParams chipParams = new android.widget.LinearLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT, dp(27));
+            chipParams.bottomMargin = dp(6);
+            mTvSuggestions.addView(chip, chipParams);
+        }
+        if (focusedIndex >= 0 && mTvSuggestions.getChildCount() > 0) {
+            mTvSuggestions.getChildAt(Math.min(focusedIndex, mTvSuggestions.getChildCount() - 1)).requestFocus();
         }
     }
+
+    @Override public void onDestroyView() {
+        mSuggestionRequest++;
+        mTvSuggestions = null;
+        super.onDestroyView();
+    }
+
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 
     protected boolean containsAdapter(ObjectAdapter adapter) {
         if (mResultsAdapter != null) {

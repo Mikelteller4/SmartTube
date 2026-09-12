@@ -52,7 +52,18 @@ public abstract class MaxControlsVideoPlayerGlue<T extends PlayerAdapter>
 
                         PlaybackBaseControlGlue<?> glue = (PlaybackBaseControlGlue<?>) obj;
                         viewHolder.getTitle().setText(glue.getTitle());
-                        viewHolder.getSubtitle().setText(glue.getSubtitle());
+                        viewHolder.getTitle().setTextSize(20);
+                        Helpers.setField(viewHolder.getTitle(), "mTriggerConditions", 0);
+                        float density = viewHolder.view.getResources().getDisplayMetrics().density;
+                        Helpers.setField(viewHolder, "mTitleLineSpacing", Math.round(24 * density));
+                        Helpers.setField(viewHolder, "mUnderTitleBaselineMargin", Math.round(24 * density));
+                        viewHolder.getTitle().setMaxWidth(Math.round(320 * density));
+                        viewHolder.getTitle().setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+                        viewHolder.getTitle().setMaxLines(2);
+                        viewHolder.getSubtitle().setTextSize(12);
+                        viewHolder.getSubtitle().setMaxLines(1);
+                        viewHolder.getSubtitle().setEllipsize(android.text.TextUtils.TruncateAt.END);
+                        viewHolder.getSubtitle().setText(mVideo != null ? mVideo.getSecondTitle() : glue.getSubtitle());
                         // MOD: add extra title line
                         //viewHolder.getBody().setText(glue.getBody());
                     }
@@ -75,7 +86,7 @@ public abstract class MaxControlsVideoPlayerGlue<T extends PlayerAdapter>
                      */
                     private void fixThumbOverlapping(ViewHolder viewHolder) {
                         LinearLayout.LayoutParams textParam = new LinearLayout.LayoutParams
-                                (LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+                                (LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
                         viewHolder.getTitle().setLayoutParams(textParam);
                         viewHolder.getSubtitle().setLayoutParams(textParam);
@@ -108,6 +119,7 @@ public abstract class MaxControlsVideoPlayerGlue<T extends PlayerAdapter>
             }
         };
         rowPresenter.setDescriptionPresenter(detailsPresenter);
+        rowPresenter.setSecondaryProgressColor(0xFFBDBDBD);
         return rowPresenter;
     }
 
@@ -175,8 +187,8 @@ public abstract class MaxControlsVideoPlayerGlue<T extends PlayerAdapter>
             getTransportViewHolder().setSeekPreviewTitle(title);
         }
         if (getDescriptionViewHolder() != null) { // the chapter title when show full ui
-            getDescriptionViewHolder().getBody().setText(title);
-            getDescriptionViewHolder().getBody().setVisibility(title != null ? View.VISIBLE: View.GONE);
+            getDescriptionViewHolder().getBody().setText(null);
+            getDescriptionViewHolder().getBody().setVisibility(View.GONE);
         }
     }
 

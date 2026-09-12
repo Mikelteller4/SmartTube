@@ -190,7 +190,7 @@ public class SearchTagsFragment extends SearchTagsFragmentBase {
 
         // Commit on voice input.
         // Note, that voice detection is far from ideal and may results duplicate search loading.
-        if (isVoiceQuery(newQuery)) {
+        if (isVoiceQuery(newQuery) || TextUtils.isEmpty(newQuery)) {
             loadSearchResult(newQuery);
         }
 
@@ -361,11 +361,10 @@ public class SearchTagsFragment extends SearchTagsFragmentBase {
     }
 
     private void loadSearchResult(String searchQuery) {
-        // Don't show suggested videos (empty query).
-        // They are inaccurate and usually have problems with layout.
-        if (!TextUtils.isEmpty(searchQuery) && !searchQuery.equals(mSearchQuery)) {
-            mSearchQuery = searchQuery;
-            mSearchPresenter.onSearch(searchQuery);
+        String query = searchQuery == null ? "" : searchQuery;
+        if (!query.equals(mSearchQuery)) {
+            mSearchQuery = query;
+            mSearchPresenter.onSearch(query);
         }
     }
 

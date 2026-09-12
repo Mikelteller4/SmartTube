@@ -152,11 +152,9 @@ public final class SeekBar extends View {
         }
         canvas.drawRoundRect(mProgressRect, radius, radius, mProgressPaint);
 
-        for (SeekBarRectangle rectangle : mSeekBarRectangles) {
-            canvas.drawRoundRect(rectangle.rect, radius, radius, rectangle.paint);
-        }
+        // Keep segment data for seeking; the TV surface uses a continuous progress track.
 
-        canvas.drawCircle(mKnobx, getHeight() / 2, radius, mKnobPaint);
+        canvas.drawCircle(mKnobx, getHeight() / 2, mActiveRadius, mKnobPaint);
     }
 
     /**
@@ -245,17 +243,19 @@ public final class SeekBar extends View {
         mBackgroundRect.set(mBarHeight / 2, verticalPadding,
                 width - mBarHeight / 2, height - verticalPadding);
 
-        final int radius = isFocused() ? mActiveRadius : mBarHeight / 2;
-        final int progressWidth = width - radius * 2;
-        final float progressPixels = mProgress / (float) mMax * progressWidth;
+        final int progressWidth = Math.max(0, width - mBarHeight);
+        final float progressPixels = mProgress / (float) Math.max(1, mMax) * progressWidth;
         mProgressRect.set(mBarHeight / 2, verticalPadding, mBarHeight / 2 + progressPixels,
                 height - verticalPadding);
+        mProgressPaint.setShader(new android.graphics.LinearGradient(mProgressRect.left, 0,
+                Math.max(mProgressRect.left + 1, mProgressRect.right), 0,
+                0xFFFF0033, 0xFFFF1493, android.graphics.Shader.TileMode.CLAMP));
 
-        final float secondProgressPixels = mSecondProgress / (float) mMax * progressWidth;
+        final float secondProgressPixels = mSecondProgress / (float) Math.max(1, mMax) * progressWidth;
         mSecondProgressRect.set(mProgressRect.right, verticalPadding,
                 mBarHeight / 2 + secondProgressPixels, height - verticalPadding);
 
-        mKnobx = radius + (int) progressPixels;
+        mKnobx = mBarHeight / 2 + (int) progressPixels;
 
         for (SeekBarRectangle seekBarRectangle : mSeekBarRectangles) {
             seekBarRectangle.rect.set(seekBarRectangle.rect.left, verticalPadding, seekBarRectangle.rect.right, height - verticalPadding);
