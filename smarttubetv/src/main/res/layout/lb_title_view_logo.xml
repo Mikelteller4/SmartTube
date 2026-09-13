@@ -50,6 +50,7 @@
             android:layout_height="@dimen/lb_browse_title_icon_height"
             android:maxWidth="@dimen/lb_browse_title_icon_max_width"
             android:layout_marginStart="@dimen/search_bar_right_items_margin"
+            android:layout_marginEnd="4dp"
             android:adjustViewBounds="true"
             android:src="@null"
             android:visibility="gone"
