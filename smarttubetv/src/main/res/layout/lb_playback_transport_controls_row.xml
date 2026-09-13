@@ -17,7 +17,8 @@
                 android:layout_marginBottom="20dp" android:orientation="horizontal">
                 <ImageView android:id="@+id/image" android:layout_width="0dp" android:layout_height="0dp"/>
                 <FrameLayout android:id="@+id/description_dock" android:layout_width="560dp"
-                    android:layout_height="wrap_content" android:clipToPadding="false"/>
+                    android:layout_height="wrap_content" android:translationY="3dp"
+                    android:clipToPadding="false"/>
             </LinearLayout>
             <FrameLayout android:id="@+id/secondary_controls_dock" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:layout_gravity="bottom|end"
