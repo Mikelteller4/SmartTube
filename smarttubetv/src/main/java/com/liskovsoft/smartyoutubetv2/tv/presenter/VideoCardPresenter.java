@@ -216,6 +216,7 @@ public class VideoCardPresenter extends LongClickPresenter {
                     // Updated thumbnail url not found
                     Glide.with(context)
                         .load(video.cardImageUrl) // always working
+                        .override(mWidth, mHeight)
                         //.placeholder(mDefaultCardImage)
                         .apply(ViewUtil.glideOptions())
                         .listener(mErrorListener)

@@ -123,6 +123,7 @@ public class ChannelCardPresenter extends LongClickPresenter {
     public void onUnbindViewHolder(ViewHolder viewHolder) {
         // Remove references to images so that the garbage collector can free up memory.
         ImageView imageView = viewHolder.view.findViewById(R.id.channel_image);
+        Glide.with(imageView.getContext().getApplicationContext()).clear(imageView);
         imageView.setImageDrawable(null);
     }
 

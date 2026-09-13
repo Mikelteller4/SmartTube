@@ -1,10 +1,14 @@
 package com.liskovsoft.smartyoutubetv2.tv.util;
 
 import android.content.Context;
+import android.app.ActivityManager;
 
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.load.engine.cache.InternalCacheDiskCacheFactory;
+import com.bumptech.glide.load.engine.cache.MemorySizeCalculator;
+import com.bumptech.glide.load.engine.cache.LruResourceCache;
+import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool;
 import com.bumptech.glide.module.AppGlideModule;
 
 /**
@@ -22,5 +26,21 @@ public class GlideCachingModule extends AppGlideModule {
 
         // Limit cache size
         builder.setDiskCache(new InternalCacheDiskCacheFactory(context, CACHE_SIZE));
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memory = new ActivityManager.MemoryInfo();
+        if (manager != null) {
+            manager.getMemoryInfo(memory);
+            // Some entry-level TVs do not advertise the Android low-RAM flag.
+            if (manager.isLowRamDevice() || memory.totalMem <= 2L * 1024 * 1024 * 1024) {
+                MemorySizeCalculator sizes = new MemorySizeCalculator.Builder(context)
+                        .setMemoryCacheScreens(1f)
+                        .setBitmapPoolScreens(1f)
+                        .setMaxSizeMultiplier(0.15f)
+                        .setLowMemoryMaxSizeMultiplier(0.15f)
+                        .build();
+                builder.setMemoryCache(new LruResourceCache(sizes.getMemoryCacheSize()));
+                builder.setBitmapPool(new LruBitmapPool(sizes.getBitmapPoolSize()));
+            }
+        }
     }
 }

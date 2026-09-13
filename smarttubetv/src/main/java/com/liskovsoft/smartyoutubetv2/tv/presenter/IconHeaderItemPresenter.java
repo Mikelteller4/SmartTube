@@ -83,6 +83,7 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
 
                 //ViewUtil.makeMonochrome(iconView);
             } else {
+                Glide.with(rootView.getContext().getApplicationContext()).clear(iconView);
                 Drawable icon = mResId > 0 ? ContextCompat.getDrawable(rootView.getContext(), mResId) : mDefaultIcon;
                 iconView.setImageDrawable(icon);
             }
@@ -96,7 +97,10 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        // NOP
+        ImageView icon = viewHolder.view.findViewById(R.id.header_icon);
+        if (icon != null) {
+            Glide.with(icon.getContext().getApplicationContext()).clear(icon);
+        }
     }
 
     // TODO: This is a temporary fix. Remove me when leanback onCreateViewHolder no longer sets the

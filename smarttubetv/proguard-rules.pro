@@ -21,6 +21,22 @@
 #-ignorewarnings
 -dontobfuscate
 
+# J2V8 looks up Java constructors and callbacks from native code.
+# Keeping only native methods is insufficient for runtime initialization.
+-keep class com.eclipsesource.v8.** { *; }
+
+# Custom TV presenters replace Leanback internals using reflection.
+# Preserve field types as well as names (R8 otherwise narrows listener types).
+-keep class androidx.leanback.** { *; }
+
+# The service converters populate models through custom JsonPath/regexp
+# annotations and reflection, not direct Java writes.
+-keep class com.liskovsoft.youtubeapi.** { *; }
+-keep class com.liskovsoft.googlecommon.** { *; }
+
+# Protobuf Lite reads generated message fields by their schema names.
+-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+
 -keepattributes SourceFile,LineNumberTable
 -keepattributes Signature
 -keepattributes *Annotation*
