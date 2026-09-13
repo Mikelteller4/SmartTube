@@ -112,6 +112,17 @@ public class VideoCardPresenter extends LongClickPresenter {
         cardView.enableTitle(isTitleEnabled());
         cardView.enableContent(isContentEnabled());
         cardView.setBackgroundColor(mDefaultBackgroundColor); // background is temporarily visible during animations
+        float density = context.getResources().getDisplayMetrics().density;
+        TextView title = cardView.findViewById(R.id.title_text);
+        if (title != null) {
+            title.setTranslationY(3f * density);
+            title.setLineSpacing(4f * density, 1f);
+        }
+        TextView content = cardView.findViewById(R.id.content_text);
+        if (content != null) {
+            content.setTranslationY(-1.5f * density);
+            content.setLineSpacing(6.5f * density, 1f);
+        }
         //if (VERSION.SDK_INT >= 23 && MainUIData.instance(context).isUiTweakEnabled(MainUIData.UI_TWEAK_ROUNDED_CORNERS)) {
         //    cardView.setForeground(ContextCompat.getDrawable(context, R.drawable.lb_card_outline));
         //}

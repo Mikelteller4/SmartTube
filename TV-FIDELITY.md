@@ -231,3 +231,9 @@ The controls overlay now dims the complete video frame instead of leaving the up
 The accepted Home reference places the second shelf's thumbnails at `y=984`; the previous build placed them at `y=976`. A Browse-only 4dp gap now separates row containers. Runtime hierarchy `work/home-row-spacing.xml` confirms that the lead row remains at `[156,249][876,654]`, while the second shelf moves to `[156,984][684,1080]`. Search remains unchanged at `[156,634][684,931]` in `work/search-spacing-check.xml`.
 
 `work/build-home-row-spacing.log` passed in 2m10s, the APK installed successfully, and `work/home-row-spacing.png` was visually inspected against `work/references/play-0.png`.
+
+## Card title and metadata rhythm (2026-09-13)
+
+Pixel-row analysis of the accepted Home reference found the selected two-line title at `y=687..718` and `733..763`, author at `781..798`, and views/age at `822..843`. The prior build compressed both title and metadata line spacing. Card titles now translate down 3dp with 4dp extra line spacing; metadata translates up 1.5dp with 6.5dp extra line spacing. Bottom padding is reduced by the same measured amount, keeping the total card and row height unchanged.
+
+`work/card-line-spacing.png` measures the corresponding rows at `688..718`, `734..763`, `781..798`, and `823..844`, within one pixel of the reference. `work/card-line-spacing.xml` confirms the lead image remains `[156,249][876,654]` and the next shelf remains `[156,984][684,1080]`. `work/build-card-line-spacing.log` passed in 53s and the resulting APK installed successfully.

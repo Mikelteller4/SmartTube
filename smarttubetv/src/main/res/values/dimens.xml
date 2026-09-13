@@ -119,7 +119,7 @@
     <dimen name="grid_item_horizontal_spacing">18dp</dimen>
     <dimen name="grid_item_vertical_spacing">15dp</dimen>
     <dimen name="grid_horizontal_margin">25dp</dimen>
-    <dimen name="browse_rows_vertical_spacing">4dp</dimen>
+    <dimen name="browse_rows_vertical_spacing">0dp</dimen>
 
     <!-- Browse headers spacing. Origin: 21dp -->
     <!--<dimen name="lb_browse_headers_vertical_spacing">10dp</dimen>-->
@@ -130,6 +130,7 @@
     <dimen name="lb_basic_card_main_height">188dp</dimen>
     <dimen name="lb_basic_card_info_height">52dp</dimen>
     <dimen name="lb_basic_card_info_padding_horizontal">0dp</dimen>
+    <dimen name="lb_basic_card_info_padding_bottom">1.5dp</dimen>
     <dimen name="lb_basic_card_info_padding">0dp</dimen>
     <dimen name="lb_browse_padding_top">33dp</dimen>
     <dimen name="lb_basic_card_info_text_margin">2dp</dimen>
