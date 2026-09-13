@@ -263,3 +263,7 @@ Opening the selected Home video reached `PlaybackActivity`, completed SABR buffe
 The description dock in the transport row now has a 3dp visual translation. On the 2x density emulator this moves the title and metadata about 6px down to the reference baseline while leaving the seek bar, action row and recommendation shelf unchanged. The change was rebuilt and installed with `Probar.ps1`; the APK release assets were refreshed afterwards.
 
 The account-picker heading now uses the regular sans-serif weight observed in the public reference; navigation labels retain their medium weight for focus legibility. This was rebuilt, installed and included in the current release assets.
+
+## Final installed regression (2026-09-13)
+
+The current x86 APK was installed with `Probar.ps1`, launched as `app.smarttube.private.tv` and remained in `BrowseActivity` after an 8-second settle. `work/regression-home-final.xml` exposes the expected `Recommended`, `Search`, `Pop Music` and video metadata nodes; the PID-filtered log contains no `FATAL EXCEPTION` or `AndroidRuntime` entry. `work/regression-home-final.png` is the current installed Home capture. Movies & TV remains excluded from this acceptance record.
