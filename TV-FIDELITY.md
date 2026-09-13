@@ -237,3 +237,9 @@ The accepted Home reference places the second shelf's thumbnails at `y=984`; the
 Pixel-row analysis of the accepted Home reference found the selected two-line title at `y=687..718` and `733..763`, author at `781..798`, and views/age at `822..843`. The prior build compressed both title and metadata line spacing. Card titles now translate down 3dp with 4dp extra line spacing; metadata translates up 1.5dp with 6.5dp extra line spacing. Bottom padding is reduced by the same measured amount, keeping the total card and row height unchanged.
 
 `work/card-line-spacing.png` measures the corresponding rows at `688..718`, `734..763`, `781..798`, and `823..844`, within one pixel of the reference. `work/card-line-spacing.xml` confirms the lead image remains `[156,249][876,654]` and the next shelf remains `[156,984][684,1080]`. `work/build-card-line-spacing.log` passed in 53s and the resulting APK installed successfully.
+
+## Compact-rail pixel boxes (2026-09-13)
+
+Thresholded pixel bounding boxes were measured independently for every visible compact-rail glyph in `play-0.png` and the emulator capture. Fractional view translations and vector path extents now align all ten boxes: Search `[65,218][90,243]`, Home `[66,296][89,322]`, Music `[63,372][92,401]`, Movies `[63,452][92,477]`, Sports `[65,528][90,557]`, Subscriptions `[63,608][92,633]`, Library `[65,686][90,711]`, More `[65,767][90,785]`, Settings `[63,900][90,929]`, and the bottom TV slot `[63,981][92,1002]`.
+
+`work/rail-pixel-final.png` records the accepted result. `work/build-rail-pixel-final.log` passed in 51s and the APK installed successfully. Matching bounding boxes establish size and placement, not identical internal path pixels; Movies & TV and the bottom slot retain the functional substitutions documented above.

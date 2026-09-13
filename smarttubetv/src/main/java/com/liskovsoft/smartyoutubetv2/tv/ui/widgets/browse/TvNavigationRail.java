@@ -40,7 +40,7 @@ public final class TvNavigationRail extends FrameLayout {
         ImageView live = addIcon(MediaGroup.TYPE_LIVE, R.drawable.tv_rail_tv, R.string.badge_live, 0, listener);
         LayoutParams liveParams = (LayoutParams) live.getLayoutParams();
         liveParams.gravity = Gravity.BOTTOM | Gravity.START;
-        liveParams.bottomMargin = dp(22);
+        liveParams.bottomMargin = dp(24);
         live.setLayoutParams(liveParams);
     }
 
@@ -53,6 +53,13 @@ public final class TvNavigationRail extends FrameLayout {
         icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
         int padding = destination == ACCOUNT ? dp(7) : dp(12);
         icon.setPadding(padding, padding, padding, padding);
+        if (destination == SEARCH || destination == MediaGroup.TYPE_MUSIC ||
+                destination == MediaGroup.TYPE_SPORTS || destination == MediaGroup.TYPE_USER_PLAYLISTS) {
+            icon.setTranslationY(dp(0.5f));
+        } else if (destination == MediaGroup.TYPE_SETTINGS) {
+            icon.setTranslationY(dp(-0.5f));
+            icon.setTranslationX(dp(-0.5f));
+        }
         // D-pad navigation expands the full menu through BrowseFrameLayout.
         icon.setFocusable(false);
         icon.setOnClickListener(v -> listener.onNavigate(destination));
@@ -71,5 +78,6 @@ public final class TvNavigationRail extends FrameLayout {
         }
     }
 
-    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
+    private int dp(int value) { return dp((float) value); }
+    private int dp(float value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 }
