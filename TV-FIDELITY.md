@@ -29,12 +29,16 @@ Compare actual screenshots at the same resolution, allowing different video cont
 ## Outstanding differences
 
 - Exact typeface rasterization and the geometry of hand-authored rail/action glyphs remain approximate.
-- Movies & TV is backed by a real search because SmartTube has no paid Movies service; the lowest reference rail glyph is ambiguous and maps to LIVE.
+- Movies & TV is intentionally outside the requested acceptance scope; it remains backed by a real search because SmartTube has no equivalent paid Movies service.
 - Search's globe opens an alternate-character page rather than a reference-verified language menu; speech recognition depends on a recognizer installed on the target device.
 - Signed-in multi-profile account placement, unavailable-content screens, settings and other secondary states have incomplete public references.
 - Live service content cannot match the static screenshots, and full playback, audio output and sign-in have not been verified end to end.
 
 No completion claim is justified while these differences remain.
+
+## Account picker geometry correction (2026-09-13)
+
+The account picker was compared against `expanded-account-2024.webp` at 1920 × 1080 after the layout correction. The `Who’s watching?` heading now begins at approximately x=1134 and y=216, the Guest avatar occupies approximately [1528,337][1808,617], and the Add account button occupies approximately [1178,894][1448,960]. These agree with the reference's heading, guest slot and button geometry within the capture's antialiasing and camera perspective. Movies & TV remains deliberately excluded from the acceptance criterion. Account avatars and profile names remain account-dependent.
 
 ## Search implementation and validation (2026-09-07)
 

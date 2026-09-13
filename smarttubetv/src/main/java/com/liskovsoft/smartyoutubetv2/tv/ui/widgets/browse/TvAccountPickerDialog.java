@@ -91,7 +91,7 @@ public final class TvAccountPickerDialog extends Dialog {
                 });
         root.addView(account);
 
-        int y = 108;
+        int y = 105;
         addNavigation(root, R.drawable.tv_rail_search, getContext().getString(androidx.leanback.R.string.lb_search_bar_hint),
                 TvNavigationRail.SEARCH, y);
         addNavigation(root, R.drawable.tv_rail_home, getContext().getString(R.string.header_home),
@@ -109,7 +109,7 @@ public final class TvAccountPickerDialog extends Dialog {
         addNavigation(root, R.drawable.tv_rail_more, getContext().getString(R.string.tv_navigation_more),
                 TvNavigationRail.MORE, y += 38);
         addNavigation(root, R.drawable.tv_rail_settings, getContext().getString(R.string.header_settings),
-                MediaGroup.TYPE_SETTINGS, 480);
+                MediaGroup.TYPE_SETTINGS, 477);
 
         if (!accountPicker) {
             account.post(account::requestFocus);
@@ -117,10 +117,12 @@ public final class TvAccountPickerDialog extends Dialog {
         }
 
         TextView title = text(getContext().getString(R.string.tv_account_whos_watching), 25, Color.WHITE, true);
-        add(root, title, 520, 96, 400, 50);
+        // The 2024 TV layout centers this heading over the profile area rather than
+        // aligning it with the navigation column.
+        add(root, title, 567, 92, 400, 50);
 
         Account selected = MediaServiceManager.instance().getSelectedAccount();
-        int profileX = selected == null ? 700 : 575;
+        int profileX = selected == null ? 744 : 575;
         if (selected != null) {
             addProfile(root, selected.getName(), selected.getAvatarImageUrl(), profileX, 168, false, () -> dismiss());
             profileX += 210;
@@ -134,10 +136,10 @@ public final class TvAccountPickerDialog extends Dialog {
         addAccount.setGravity(Gravity.CENTER);
         addAccount.setOrientation(LinearLayout.HORIZONTAL);
         addAccount.setFocusable(true);
-        addAccount.setBackground(roundRect(0xFF566B9D, 22));
+        addAccount.setBackground(roundRect(0xFF566B9D, 17));
         ImageView addIcon = new ImageView(getContext());
         addIcon.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.tv_account_add));
-        addAccount.addView(addIcon, new LinearLayout.LayoutParams(dp(20), dp(20)));
+        addAccount.addView(addIcon, new LinearLayout.LayoutParams(dp(18), dp(18)));
         TextView addLabel = text(getContext().getString(R.string.tv_account_add), 16, Color.WHITE, true);
         LinearLayout.LayoutParams addLabelParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -147,7 +149,7 @@ public final class TvAccountPickerDialog extends Dialog {
             dismiss();
             AccountSettingsPresenter.instance(getContext()).show();
         });
-        add(root, addAccount, 590, 447, 145, 42);
+        add(root, addAccount, 589, 447, 135, 33);
 
         account.post(account::requestFocus);
         return root;
@@ -177,7 +179,7 @@ public final class TvAccountPickerDialog extends Dialog {
                 getContext().getString(R.string.tv_navigation_more), 16, 40, 226, 42,
                 true, () -> setContentView(createContent()));
         root.addView(back);
-        int y = 108;
+        int y = 105;
         addExtraNavigation(root, R.drawable.tv_rail_sports, getContext().getString(R.string.header_sports),
                 MediaGroup.TYPE_SPORTS, y);
         addExtraNavigation(root, R.drawable.tv_rail_tv, getContext().getString(R.string.badge_live),
@@ -214,7 +216,7 @@ public final class TvAccountPickerDialog extends Dialog {
         ImageView icon = new ImageView(getContext());
         icon.setImageDrawable(ContextCompat.getDrawable(getContext(), iconRes));
         icon.setColorFilter(selected ? 0xFF0F0F0F : 0xFFF1F1F1);
-        row.addView(icon, new LinearLayout.LayoutParams(dp(22), dp(22)));
+        row.addView(icon, new LinearLayout.LayoutParams(dp(16), dp(16)));
 
         TextView text = text(label, 16, selected ? 0xFF0F0F0F : 0xFFF1F1F1, true);
         LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
@@ -261,7 +263,7 @@ public final class TvAccountPickerDialog extends Dialog {
                 16, 0xFFF1F1F1, false);
         label.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(dp(180), dp(34));
-        labelParams.topMargin = dp(8);
+        labelParams.topMargin = dp(10);
         profile.addView(label, labelParams);
         profile.setOnClickListener(v -> action.run());
         profile.setOnFocusChangeListener((v, focused) -> avatar.setBackground(circle(
