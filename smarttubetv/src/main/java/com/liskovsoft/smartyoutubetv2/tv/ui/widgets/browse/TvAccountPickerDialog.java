@@ -116,7 +116,7 @@ public final class TvAccountPickerDialog extends Dialog {
             return root;
         }
 
-        TextView title = text(getContext().getString(R.string.tv_account_whos_watching), 25, Color.WHITE, true);
+        TextView title = text(getContext().getString(R.string.tv_account_whos_watching), 25, Color.WHITE, false);
         // The 2024 TV layout centers this heading over the profile area rather than
         // aligning it with the navigation column.
         add(root, title, 567, 92, 400, 50);
