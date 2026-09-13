@@ -119,6 +119,7 @@
     <dimen name="grid_item_horizontal_spacing">18dp</dimen>
     <dimen name="grid_item_vertical_spacing">15dp</dimen>
     <dimen name="grid_horizontal_margin">25dp</dimen>
+    <dimen name="browse_rows_vertical_spacing">4dp</dimen>
 
     <!-- Browse headers spacing. Origin: 21dp -->
     <!--<dimen name="lb_browse_headers_vertical_spacing">10dp</dimen>-->

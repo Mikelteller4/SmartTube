@@ -15,8 +15,8 @@ Analysis copies at the workspace level: `work/references/play-0.png` (home), `pl
 - Canvas: #0F0F0F. Persistent navigation icons centered near x=78.
 - Avatar centered near (78,102). Search icon around (78,230), then vertical destinations about 78 pixels apart.
 - Shelves start at x=156. First row title around y=188; thumbnails at y=249.
-- Music cards: roughly 528 × 297, with 36-pixel gutters. Selected image has a white border, metadata stays on the canvas.
-- Home lead row: larger 720 × 405 cards; the next row uses smaller cards. This per-row sizing is not yet implemented.
+- Home lead row: 720 × 405 cards; subsequent shelves use 528 × 297 cards, all with 36-pixel gutters. Selected images have an outer white border and metadata stays on the canvas.
+- Music album tiles use square artwork when the service reports square source dimensions; ordinary video tiles retain 16:9 geometry.
 - Header microphone: 72-pixel circle at x=156, y=66. Search pill starts x=246, width about 630, height 72. Wordmark near the upper-right, approximately 195 pixels wide.
 - Titles: bold; selected white, others grey. Author and views/age are separate metadata lines.
 - Search: persistent rail, input at top, history chips to the left of an alphabet keyboard; video results below.
@@ -28,13 +28,11 @@ Compare actual screenshots at the same resolution, allowing different video cont
 
 ## Outstanding differences
 
-- Expanded navigation still uses SmartTube's original category organization.
-- Some rail icons/destinations do not yet match the reference set.
-- Per-row card size, exact typography, focus geometry and metadata spacing need comparison and correction.
-- Search geometry is implemented; exact symbols, focus transitions and secondary keyboard pages still need comparison.
-- Player layout still requires implementation and visual validation.
-- Account dialogs, unavailable content and other secondary states have incomplete public references.
-- Full playback and sign-in have not been verified.
+- Exact typeface rasterization and the geometry of hand-authored rail/action glyphs remain approximate.
+- Movies & TV is backed by a real search because SmartTube has no paid Movies service; the lowest reference rail glyph is ambiguous and maps to LIVE.
+- Search's globe opens an alternate-character page rather than a reference-verified language menu; speech recognition depends on a recognizer installed on the target device.
+- Signed-in multi-profile account placement, unavailable-content screens, settings and other secondary states have incomplete public references.
+- Live service content cannot match the static screenshots, and full playback, audio output and sign-in have not been verified end to end.
 
 No completion claim is justified while these differences remain.
 
@@ -227,3 +225,9 @@ More opens a matching secondary page for SmartTube-only access to Sports, LIVE, 
 The controls overlay now dims the complete video frame instead of leaving the upper half unobscured. Its vertical gradient runs from 60% black at the top through 70% near the middle to 85% at the bottom, matching the full-frame attenuation visible in the accepted YouTube TV player reference while preserving stronger contrast behind the title, seek bar and recommendations.
 
 `work/build-player-final.log` passed in 1m33s after a clean resource rebuild, and `outputs/Probar.ps1` installed and launched the resulting APK. `work/player-final-verified.png` records the final controls state; returning with Back was verified in `work/player-controls-hidden-verified.png`. No `AndroidRuntime` crash appears in the app's PID-filtered log. Live playback still emits upstream SABR diagnostics and unsigned-account token messages, which are unrelated to this visual change.
+
+## Home shelf spacing (2026-09-13)
+
+The accepted Home reference places the second shelf's thumbnails at `y=984`; the previous build placed them at `y=976`. A Browse-only 4dp gap now separates row containers. Runtime hierarchy `work/home-row-spacing.xml` confirms that the lead row remains at `[156,249][876,654]`, while the second shelf moves to `[156,984][684,1080]`. Search remains unchanged at `[156,634][684,931]` in `work/search-spacing-check.xml`.
+
+`work/build-home-row-spacing.log` passed in 2m10s, the APK installed successfully, and `work/home-row-spacing.png` was visually inspected against `work/references/play-0.png`.
