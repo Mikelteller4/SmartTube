@@ -266,6 +266,10 @@ The account-picker heading now uses the regular sans-serif weight observed in th
 
 The final playback regression with Bluetooth disabled reached `PlaybackActivity`, rendered video and reported `PLAYING(3)` with `error=null`. The control-focused capture `work/player-regression-controls-final.png` places the title baseline at the corrected y≈632, the seek bar at y≈807 and recommendations at y≈895. The earlier Bluetooth error was external to the app; disabling Bluetooth allowed the same APK to play normally.
 
+## Internal rail trace audit (2026-09-13)
+
+Using 45 × 45 pixel crops centered on each glyph, the current Home capture was compared with `play-0.png` after thresholding foreground pixels. Home and More have intersection-over-union values of 0.944 and 0.963; Search, Music, Sports and TV are between 0.50 and 0.66; Subscriptions, Library and Settings are the largest residual trace differences at 0.476, 0.527 and 0.412 respectively. All ten outer bounding boxes already match the measured reference boxes. This confirms that the remaining rail discrepancy is the internal vector artwork and antialiasing, not placement. The result is recorded as an explicit limitation rather than replacing the stable geometry with unverified raster assets.
+
 ## Final installed regression (2026-09-13)
 
 The current x86 APK was installed with `Probar.ps1`, launched as `app.smarttube.private.tv` and remained in `BrowseActivity` after an 8-second settle. `work/regression-home-final.xml` exposes the expected `Recommended`, `Search`, `Pop Music` and video metadata nodes; the PID-filtered log contains no `FATAL EXCEPTION` or `AndroidRuntime` entry. `work/regression-home-final.png` is the current installed Home capture. Movies & TV remains excluded from this acceptance record.
