@@ -264,6 +264,8 @@ The description dock in the transport row now has a 3dp visual translation. On t
 
 The account-picker heading now uses the regular sans-serif weight observed in the public reference; navigation labels retain their medium weight for focus legibility. This was rebuilt, installed and included in the current release assets.
 
+The final playback regression with Bluetooth disabled reached `PlaybackActivity`, rendered video and reported `PLAYING(3)` with `error=null`. The control-focused capture `work/player-regression-controls-final.png` places the title baseline at the corrected y≈632, the seek bar at y≈807 and recommendations at y≈895. The earlier Bluetooth error was external to the app; disabling Bluetooth allowed the same APK to play normally.
+
 ## Final installed regression (2026-09-13)
 
 The current x86 APK was installed with `Probar.ps1`, launched as `app.smarttube.private.tv` and remained in `BrowseActivity` after an 8-second settle. `work/regression-home-final.xml` exposes the expected `Recommended`, `Search`, `Pop Music` and video metadata nodes; the PID-filtered log contains no `FATAL EXCEPTION` or `AndroidRuntime` entry. `work/regression-home-final.png` is the current installed Home capture. Movies & TV remains excluded from this acceptance record.
